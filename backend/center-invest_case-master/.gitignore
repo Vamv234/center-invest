@@ -1,0 +1,43 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+.directory
+
+# Dependencies
+node_modules/
+venv/
+env/
+
+# Build & Dist
+dist/
+build/
+out/
+.next/
+
+# Cache
+.cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Docker
+docker-compose.override.yml

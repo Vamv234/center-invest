@@ -1,0 +1,274 @@
+{
+  "scenarios": [
+    {
+      "id": "office-phishing",
+      "title": "Подозрительное письмо в офисе",
+      "level": "easy",
+      "setting": "office",
+      "summary": "Пользователь получает письмо с вложением якобы от бухгалтерии.",
+      "threat_types": ["phishing", "malicious_attachment", "social_engineering"],
+      "start_step_id": "office-mail",
+      "passing_score": 20,
+      "steps": [
+        {
+          "id": "office-mail",
+          "title": "Письмо от бухгалтерии",
+          "prompt": "Вам пришло письмо: 'Срочно откройте акт сверки и подтвердите данные'. Вложение называется act_check.zip.",
+          "hint": "Проверьте адрес отправителя, вложение и срочность письма.",
+          "explanation": "Фишинговые письма часто давят на срочность и подменяют доверенный контекст.",
+          "options": [
+            {
+              "id": "open-attachment",
+              "label": "Открыть вложение сразу",
+              "outcome": "critical",
+              "is_safe": false,
+              "feedback": "Это рискованный шаг: архив из письма без проверки может быть вредоносным.",
+              "score_delta": -10,
+              "ends_attempt": true,
+              "tags": ["phishing", "malicious_attachment"]
+            },
+            {
+              "id": "verify-sender",
+              "label": "Проверить адрес отправителя и уточнить письмо у бухгалтерии в чате",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Верно: подтверждение по независимому каналу снижает риск фишинга.",
+              "score_delta": 10,
+              "next_step_id": "office-link",
+              "tags": ["verification", "anti_phishing"]
+            },
+            {
+              "id": "forward-colleague",
+              "label": "Переслать коллеге и спросить, открывал ли он уже файл",
+              "outcome": "caution",
+              "is_safe": false,
+              "feedback": "Так вы можете распространить атаку дальше по команде.",
+              "score_delta": -5,
+              "next_step_id": "office-link",
+              "tags": ["lateral_spread"]
+            }
+          ]
+        },
+        {
+          "id": "office-link",
+          "title": "Ссылка на форму авторизации",
+          "prompt": "В письме есть ссылка на 'обновление учётных данных Microsoft 365'. Страница похожа на настоящую.",
+          "hint": "Посмотрите домен, сертификат и путь страницы.",
+          "explanation": "Поддельные формы входа часто имитируют брендинг, но выдают себя доменом и странным URL.",
+          "options": [
+            {
+              "id": "enter-password",
+              "label": "Ввести логин и пароль, ведь страница выглядит знакомо",
+              "outcome": "critical",
+              "is_safe": false,
+              "feedback": "Это похоже на фишинговый портал. Учётные данные могли быть украдены.",
+              "score_delta": -10,
+              "ends_attempt": true,
+              "tags": ["credential_theft"]
+            },
+            {
+              "id": "inspect-domain",
+              "label": "Проверить домен, заметить подмену и сообщить в ИБ",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Отлично: вы распознали поддельную страницу и эскалировали инцидент.",
+              "score_delta": 15,
+              "next_step_id": null,
+              "tags": ["phishing", "incident_reporting"]
+            },
+            {
+              "id": "bookmark-page",
+              "label": "Сохранить страницу в закладки и вернуться позже",
+              "outcome": "danger",
+              "is_safe": false,
+              "feedback": "Даже без ввода пароля вы сохраняете опасную ссылку и рискуете вернуться к ней позже.",
+              "score_delta": -3,
+              "next_step_id": null,
+              "tags": ["unsafe_habit"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home-passwords",
+      "title": "Безопасность дома",
+      "level": "medium",
+      "setting": "home",
+      "summary": "Нужно защитить домашние аккаунты и устройство.",
+      "threat_types": ["weak_password", "credential_reuse", "outdated_software"],
+      "start_step_id": "home-password",
+      "passing_score": 20,
+      "steps": [
+        {
+          "id": "home-password",
+          "title": "Пароль для нового сервиса",
+          "prompt": "Вы регистрируетесь в новом сервисе. Хочется использовать уже знакомый пароль для удобства.",
+          "hint": "Подумайте, что будет при утечке базы одного сервиса.",
+          "explanation": "Повторное использование паролей усиливает масштаб ущерба после одной утечки.",
+          "options": [
+            {
+              "id": "reuse-password",
+              "label": "Использовать тот же пароль, что и в почте",
+              "outcome": "danger",
+              "is_safe": false,
+              "feedback": "Это создаёт эффект домино: одна утечка может открыть доступ ко многим аккаунтам.",
+              "score_delta": -10,
+              "next_step_id": "home-update",
+              "tags": ["credential_reuse"]
+            },
+            {
+              "id": "password-manager",
+              "label": "Создать уникальный пароль в менеджере паролей",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Хорошее решение: уникальные пароли снижают последствия утечек.",
+              "score_delta": 10,
+              "next_step_id": "home-update",
+              "tags": ["password_manager", "good_practice"]
+            },
+            {
+              "id": "simple-password",
+              "label": "Придумать короткий пароль, чтобы легко запомнить",
+              "outcome": "danger",
+              "is_safe": false,
+              "feedback": "Короткие и простые пароли проще подобрать.",
+              "score_delta": -8,
+              "next_step_id": "home-update",
+              "tags": ["weak_password"]
+            }
+          ]
+        },
+        {
+          "id": "home-update",
+          "title": "Уведомление об обновлении",
+          "prompt": "Система предлагает обновить браузер и установить патчи безопасности.",
+          "hint": "Уязвимости часто закрываются именно обновлениями.",
+          "explanation": "Актуальные обновления закрывают известные уязвимости и снижают риск эксплуатации.",
+          "options": [
+            {
+              "id": "postpone-updates",
+              "label": "Отложить обновления на неопределённый срок",
+              "outcome": "danger",
+              "is_safe": false,
+              "feedback": "Откладывание патчей увеличивает окно уязвимости.",
+              "score_delta": -10,
+              "next_step_id": null,
+              "tags": ["outdated_software"]
+            },
+            {
+              "id": "install-updates",
+              "label": "Поставить обновления из официального источника",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Верно: обновления из официального канала укрепляют защиту устройства.",
+              "score_delta": 15,
+              "next_step_id": null,
+              "tags": ["patch_management"]
+            },
+            {
+              "id": "random-site-update",
+              "label": "Скачать 'ускоренное обновление' с форума",
+              "outcome": "critical",
+              "is_safe": false,
+              "feedback": "Нельзя ставить обновления из непроверенных источников.",
+              "score_delta": -12,
+              "ends_attempt": true,
+              "tags": ["trojan_risk"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "public-wifi",
+      "title": "Общественный Wi-Fi",
+      "level": "hard",
+      "setting": "public_wifi",
+      "summary": "Пользователь подключается к Wi-Fi в кафе и должен распознать риски.",
+      "threat_types": ["evil_twin", "traffic_interception", "fake_portal"],
+      "start_step_id": "wifi-select",
+      "passing_score": 20,
+      "steps": [
+        {
+          "id": "wifi-select",
+          "title": "Выбор сети",
+          "prompt": "В списке сетей есть CoffeeFree, CoffeeFree_5G и Coffee-Guest-Secure. Неясно, какая сеть настоящая.",
+          "hint": "Лучше уточнить у персонала точное название сети.",
+          "explanation": "Атакующий может поднять сеть-двойник с похожим названием, чтобы перехватывать трафик.",
+          "options": [
+            {
+              "id": "join-strongest",
+              "label": "Подключиться к сети с самым сильным сигналом",
+              "outcome": "caution",
+              "is_safe": false,
+              "feedback": "Сильный сигнал не доказывает, что сеть настоящая.",
+              "score_delta": -8,
+              "next_step_id": "wifi-portal",
+              "tags": ["evil_twin"]
+            },
+            {
+              "id": "ask-staff",
+              "label": "Уточнить у сотрудника точное имя сети и только потом подключиться",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Верно: подтверждение сети у персонала снижает риск подключения к двойнику.",
+              "score_delta": 10,
+              "next_step_id": "wifi-portal",
+              "tags": ["network_verification"]
+            },
+            {
+              "id": "disable-data",
+              "label": "Выключить мобильный интернет и пробовать все сети по очереди",
+              "outcome": "danger",
+              "is_safe": false,
+              "feedback": "Перебор сетей только увеличивает риск и не помогает проверить легитимность.",
+              "score_delta": -6,
+              "next_step_id": "wifi-portal",
+              "tags": ["unsafe_habit"]
+            }
+          ]
+        },
+        {
+          "id": "wifi-portal",
+          "title": "Портал авторизации",
+          "prompt": "После подключения открылся портал, который просит ввести email и пароль от почты для 'подтверждения личности'.",
+          "hint": "Публичный Wi-Fi почти никогда не должен запрашивать пароль от почтового аккаунта.",
+          "explanation": "Поддельные captive portal часто используют для кражи логинов и паролей.",
+          "options": [
+            {
+              "id": "enter-mail-password",
+              "label": "Ввести почту и пароль, чтобы быстрее выйти в интернет",
+              "outcome": "critical",
+              "is_safe": false,
+              "feedback": "Опасно: это попытка кражи учётных данных.",
+              "score_delta": -12,
+              "ends_attempt": true,
+              "tags": ["credential_theft", "fake_portal"]
+            },
+            {
+              "id": "leave-network",
+              "label": "Отключиться от сети и использовать мобильный интернет или VPN",
+              "outcome": "safe",
+              "is_safe": true,
+              "feedback": "Отличный выбор: вы избежали ввода чувствительных данных в сомнительный портал.",
+              "score_delta": 15,
+              "next_step_id": null,
+              "tags": ["safe_exit", "vpn"]
+            },
+            {
+              "id": "enter-fake-data",
+              "label": "Ввести случайные данные и посмотреть, пустит ли дальше",
+              "outcome": "caution",
+              "is_safe": false,
+              "feedback": "Даже эксперимент с подозрительным порталом может быть небезопасным и нормализует плохую практику.",
+              "score_delta": -4,
+              "next_step_id": null,
+              "tags": ["unsafe_testing"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

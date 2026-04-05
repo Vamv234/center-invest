@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "center-invest-backend"
+version = "0.1.0"
+description = "FastAPI backend for the Center-Invest cybersecurity simulator."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "alembic>=1.14,<2.0",
+  "email-validator>=2.2,<3.0",
+  "fastapi>=0.115,<1.0",
+  "greenlet>=3.1,<4.0",
+  "passlib>=1.7,<2.0",
+  "pydantic-settings>=2.7,<3.0",
+  "PyJWT>=2.10,<3.0",
+  "redis>=5.2,<6.0",
+  "sqlalchemy>=2.0.37,<3.0",
+  "uvicorn[standard]>=0.34,<1.0",
+  "websockets>=15,<16",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1.0",
+  "pytest>=8.3,<9.0",
+  "pytest-asyncio>=0.25,<1.0",
+  "ruff>=0.9,<1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["web/*.html"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+filterwarnings = [
+  "ignore:'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["build", "data", "center_invest_backend.egg-info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["UP017", "UP037"]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/versions/*.py" = ["E501", "I001"]

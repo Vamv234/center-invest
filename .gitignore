@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+
+backend/.env
+backend/.coverage
+backend/htmlcov/
+backend/alembic/versions/__pycache__/
+backend/data/
+backend/build/
+backend/center_invest_backend.egg-info/
+
+frontend/node_modules/
+frontend/.next/

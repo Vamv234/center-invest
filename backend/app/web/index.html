@@ -1,0 +1,1763 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Center-Invest Backend Console</title>
+  <style>
+    :root {
+      --bg: #f3ecdf;
+      --bg-2: #efe4d2;
+      --panel: rgba(255, 251, 245, 0.9);
+      --panel-strong: #fffdf9;
+      --surface: rgba(255, 255, 255, 0.72);
+      --text: #18211e;
+      --muted: #5e685f;
+      --line: rgba(31, 45, 39, 0.12);
+      --accent: #167f56;
+      --accent-strong: #0e6945;
+      --accent-soft: rgba(22, 127, 86, 0.12);
+      --warm: #cb6c31;
+      --warm-soft: rgba(203, 108, 49, 0.14);
+      --danger: #c34439;
+      --danger-soft: rgba(195, 68, 57, 0.12);
+      --shadow: 0 24px 70px rgba(36, 39, 32, 0.12);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --font-ui: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+      --font-mono: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-ui);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(22, 127, 86, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(203, 108, 49, 0.12), transparent 34%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: min(1560px, calc(100vw - 32px));
+      margin: 18px auto 36px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      padding: 24px;
+      border-radius: calc(var(--radius) + 8px);
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(22, 127, 86, 0.12), rgba(255, 255, 255, 0.74)),
+        linear-gradient(135deg, rgba(203, 108, 49, 0.08), transparent);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(22, 127, 86, 0.12);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 12px;
+      max-width: 860px;
+      font-size: clamp(34px, 4vw, 62px);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .hero-actions,
+    .hero-links,
+    .button-row,
+    .pill-row,
+    .summary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hero-actions,
+    .hero-links {
+      margin-top: 18px;
+    }
+
+    .link-pill,
+    .ghost-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(27, 34, 31, 0.06);
+    }
+
+    .hero-side,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-side {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .mini-title,
+    .panel-label {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .status-block {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .status-block h2,
+    .panel h2 {
+      margin: 8px 0 6px;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .status-block p,
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+      align-items: start;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 18px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .panel {
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .panel-head .copy {
+      max-width: 720px;
+    }
+
+    .panel-head p {
+      margin-top: 6px;
+    }
+
+    .main {
+      display: grid;
+      gap: 18px;
+    }
+
+    .split-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .guide-grid,
+    .field-grid,
+    .metric-grid,
+    .console-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .guide-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .metric-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .console-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-grid.single {
+      grid-template-columns: 1fr;
+    }
+
+    .step-card,
+    .metric,
+    .summary-card,
+    .helper,
+    .token-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .step-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 210px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.66)),
+        linear-gradient(135deg, rgba(22, 127, 86, 0.05), transparent 80%);
+    }
+
+    .step-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20px -50px auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 32px;
+      background: rgba(22, 127, 86, 0.08);
+      transform: rotate(18deg);
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent);
+      background: rgba(22, 127, 86, 0.12);
+    }
+
+    .step-card h3 {
+      margin: 14px 0 8px;
+      font-size: 18px;
+    }
+
+    .step-card p,
+    .helper p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .helper {
+      background:
+        linear-gradient(135deg, rgba(22, 127, 86, 0.08), rgba(255, 255, 255, 0.74)),
+        linear-gradient(135deg, rgba(203, 108, 49, 0.06), transparent 78%);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(30, 44, 39, 0.15);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.92);
+      padding: 12px 14px;
+      color: var(--text);
+      outline: none;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(22, 127, 86, 0.44);
+      box-shadow: 0 0 0 4px rgba(22, 127, 86, 0.1);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+      font-size: 13px;
+      font-family: var(--font-mono);
+    }
+
+    .hint {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 16px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 12px 26px rgba(22, 127, 86, 0.22);
+      transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+    }
+
+    button.secondary {
+      background: linear-gradient(135deg, #31403a, #232b28);
+      box-shadow: 0 12px 26px rgba(24, 31, 28, 0.18);
+    }
+
+    button.warn {
+      background: linear-gradient(135deg, var(--warm), #b6541c);
+      box-shadow: 0 12px 26px rgba(203, 108, 49, 0.22);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, var(--danger), #a72f25);
+      box-shadow: 0 12px 26px rgba(195, 68, 57, 0.2);
+    }
+
+    button.ghost {
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: none;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.56;
+      cursor: wait;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill.ok {
+      color: var(--accent);
+      background: rgba(22, 127, 86, 0.1);
+    }
+
+    .pill.bad {
+      color: var(--danger);
+      background: rgba(195, 68, 57, 0.1);
+    }
+
+    .pill.neutral {
+      color: var(--muted);
+    }
+
+    .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #c6beb0;
+    }
+
+    .indicator.live {
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(22, 127, 86, 0.16);
+    }
+
+    .indicator.bad {
+      background: var(--danger);
+      box-shadow: 0 0 0 5px rgba(195, 68, 57, 0.12);
+    }
+
+    .metric {
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .metric-note {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .summary-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      display: grid;
+      gap: 4px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(31, 45, 39, 0.12);
+    }
+
+    .summary-item:last-child {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .summary-key {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .summary-value {
+      font-size: 14px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .token-card details {
+      margin-top: 12px;
+    }
+
+    .token-card summary {
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .token-box,
+    .console {
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(27, 43, 38, 0.18);
+      background: #16211d;
+      color: #dcf0e6;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.55;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .token-box {
+      max-height: 190px;
+    }
+
+    .console {
+      max-height: 420px;
+      min-height: 220px;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .list li {
+      display: grid;
+      gap: 4px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.62);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .console-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .console-title h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      gap: 10px;
+      z-index: 50;
+    }
+
+    .toast {
+      min-width: 260px;
+      max-width: 360px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 251, 245, 0.96);
+      box-shadow: var(--shadow);
+      line-height: 1.45;
+    }
+
+    .toast strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .toast.ok {
+      border-color: rgba(22, 127, 86, 0.18);
+    }
+
+    .toast.bad {
+      border-color: rgba(195, 68, 57, 0.2);
+    }
+
+    .anchor-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .anchor-nav a {
+      display: inline-flex;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 1280px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .page {
+        width: min(100vw - 18px, 100%);
+      }
+
+      .guide-grid,
+      .split-2,
+      .console-grid,
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .field-grid,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero,
+      .panel,
+      .hero-side {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: clamp(30px, 11vw, 46px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">Center-Invest Backend Console</div>
+        <h1>Проверяй backend как обычный продукт, а не как набор голых endpoint-ов</h1>
+        <p>
+          Этот экран сделан как дружелюбная тестовая панель: сначала подсказывает шаги,
+          потом даёт быстрые кнопки, а уже после этого показывает сырые ответы API.
+          Так проще проверять авторизацию, личный кабинет, прогресс, рейтинг и realtime.
+        </p>
+        <div class="hero-actions">
+          <button class="ghost" data-action="health" data-loading="Проверяем backend...">Проверить backend</button>
+          <button data-action="runDemoFlow" data-loading="Запускаем демо...">Быстрый демо-прогон</button>
+          <button class="warn" data-action="seedForms">Обновить тестовые данные</button>
+        </div>
+        <div class="hero-links">
+          <a class="link-pill" href="/docs" target="_blank" rel="noreferrer">Swagger /docs</a>
+          <a class="link-pill" href="/openapi.json" target="_blank" rel="noreferrer">OpenAPI JSON</a>
+          <a class="link-pill" href="/api/v1/health/ready" target="_blank" rel="noreferrer">Health Ready</a>
+        </div>
+        <nav class="anchor-nav">
+          <a href="#auth">Авторизация</a>
+          <a href="#profile">Профиль</a>
+          <a href="#progress">Прогресс</a>
+          <a href="#realtime">WebSocket</a>
+          <a href="#logs">Журналы</a>
+        </nav>
+      </div>
+      <aside class="hero-side">
+        <div class="status-block">
+          <p class="mini-title">Сейчас открыто</p>
+          <h2>Локальный интерфейс тестирования</h2>
+          <p>Хост: <strong id="hostLabel">127.0.0.1:8000</strong></p>
+          <div class="pill-row" style="margin-top: 14px;">
+            <span class="pill" id="backendStatus"><span class="indicator" id="backendIndicator"></span><span id="backendStatusText">backend status unknown</span></span>
+            <span class="pill" id="authStatus">not authenticated</span>
+            <span class="pill" id="wsStatus"><span class="indicator" id="wsIndicator"></span><span id="wsStatusText">websocket offline</span></span>
+          </div>
+        </div>
+        <div class="status-block">
+          <p class="mini-title">Последний шаг</p>
+          <h2 id="lastActionTitle">Пока без запросов</h2>
+          <p id="lastActionMeta">Сначала нажми “Проверить backend” или “Быстрый демо-прогон”.</p>
+          <div class="pill-row" style="margin-top: 12px;">
+            <span class="pill neutral" id="lastActionStatus">ожидание</span>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Сводка</p>
+              <h2>Текущий пользователь</h2>
+              <p>Этот блок автоматически обновляется после логина, кабинета, прогресса и рейтинга.</p>
+            </div>
+          </div>
+          <div class="metric-grid">
+            <div class="metric">
+              <span class="metric-label">Имя</span>
+              <span class="metric-value" id="summaryName">Пока нет</span>
+              <span class="metric-note" id="summaryEmail">Авторизуйся или зарегистрируйся</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Лига</span>
+              <span class="metric-value" id="summaryLeague">-</span>
+              <span class="metric-note" id="summaryReputation">Репутация: -</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Ранг</span>
+              <span class="metric-value" id="summaryRank">-</span>
+              <span class="metric-note" id="summaryActiveSessions">Активные сессии: -</span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Успешность</span>
+              <span class="metric-value" id="summarySuccessRate">-</span>
+              <span class="metric-note" id="summaryScenarios">Сценарии: -</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel token-card">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Токены</p>
+              <h2>Сессия и доступ</h2>
+              <p>Здесь видно, есть ли токены, и можно быстро их очистить, обновить или скопировать.</p>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-item">
+              <span class="summary-key">Access token</span>
+              <span class="summary-value" id="accessTokenPreview">Пока не выдан</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Refresh token</span>
+              <span class="summary-value" id="refreshTokenPreview">Пока не выдан</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Текущая сессия</span>
+              <span class="summary-value" id="sessionPreview">Не выбрана</span>
+            </div>
+          </div>
+          <div class="button-row" style="margin-top: 14px;">
+            <button class="secondary" data-action="copyAccess">Скопировать access</button>
+            <button class="secondary" data-action="copyRefresh">Скопировать refresh</button>
+            <button class="warn" data-action="refresh" data-loading="Обновляем токен...">Refresh</button>
+            <button class="danger" data-action="clearTokens">Очистить токены</button>
+          </div>
+          <details>
+            <summary>Показать полный access token</summary>
+            <div class="token-box" id="accessTokenBox">No access token yet.</div>
+          </details>
+          <details>
+            <summary>Показать полный refresh token</summary>
+            <div class="token-box" id="refreshTokenBox">No refresh token yet.</div>
+          </details>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Быстрая навигация</p>
+              <h2>Что делать дальше</h2>
+              <p>Если проверяешь проект впервые, двигайся по этому короткому чек-листу.</p>
+            </div>
+          </div>
+          <ul class="list">
+            <li>
+              1. Нажми “Проверить backend”, чтобы убедиться, что API, БД и Redis доступны.
+            </li>
+            <li>
+              2. Нажми “Обновить тестовые данные”, затем “Register” и “Login”, если хочешь пройти путь вручную.
+            </li>
+            <li>
+              3. Проверь профиль и кабинет, потом отправь одну попытку сценария в блоке “Прогресс”.
+            </li>
+            <li>
+              4. После этого посмотри рейтинг и при желании подключи WebSocket, чтобы проверить realtime-обновления.
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Последний ответ</p>
+              <h2>Короткое резюме</h2>
+              <p>Без необходимости лезть в длинный JSON.</p>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-item">
+              <span class="summary-key">Маршрут</span>
+              <span class="summary-value" id="lastActionRoute">Пока нет</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-key">Результат</span>
+              <span class="summary-value" id="lastActionPreview">Журнал ниже покажет подробности после первого запроса.</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <main class="main">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Быстрый старт</p>
+              <h2>Проверка в 3 шага</h2>
+              <p>Этот блок специально сделан для первого знакомства, чтобы не пришлось думать, в каком порядке нажимать кнопки.</p>
+            </div>
+          </div>
+          <div class="guide-grid">
+            <article class="step-card">
+              <span class="step-number">1</span>
+              <h3>Подготовь тестовые данные</h3>
+              <p>
+                Интерфейс сам подставит корректные значения для email, username, профиля и сценария.
+                Каждое обновление генерирует новый тестовый аккаунт, чтобы регистрация не упиралась в дубликаты.
+              </p>
+              <div class="button-row" style="margin-top: 16px;">
+                <button class="warn" data-action="seedForms">Подготовить данные</button>
+              </div>
+            </article>
+            <article class="step-card">
+              <span class="step-number">2</span>
+              <h3>Создай пользователя или войди</h3>
+              <p>
+                Можно идти вручную через Register и Login, а можно просто запустить демо-прогон:
+                он сам создаст пользователя, обновит профиль, отправит прогресс и проверит рейтинг.
+              </p>
+              <div class="button-row" style="margin-top: 16px;">
+                <button data-action="runDemoFlow" data-loading="Выполняем проверку...">Запустить демо</button>
+              </div>
+            </article>
+            <article class="step-card">
+              <span class="step-number">3</span>
+              <h3>Посмотри итог в кабинетe</h3>
+              <p>
+                Когда прогон закончится, здесь уже будут токены, профиль, статистика по сценариям,
+                репутация, лига и события WebSocket, если решишь подключить realtime.
+              </p>
+              <div class="button-row" style="margin-top: 16px;">
+                <button class="secondary" data-action="cabinet" data-loading="Загружаем кабинет...">Открыть кабинет</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="auth">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Авторизация</p>
+              <h2>Регистрация и вход</h2>
+              <p>Этот блок рассчитан на ручную проверку основных auth-сценариев без Postman и без отдельного frontend-приложения.</p>
+            </div>
+            <div class="helper" style="max-width: 330px;">
+              <p>
+                Для логина используется поле email. После регистрации токены сохраняются локально в браузере,
+                а справа сразу обновляется статус сессии.
+              </p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label for="registerEmail">Email</label>
+              <input id="registerEmail" value="qa.user@example.com" autocomplete="off" placeholder="qa.user@example.com">
+            </div>
+            <div>
+              <label for="registerUsername">Username</label>
+              <input id="registerUsername" value="qa_user_console" autocomplete="off" placeholder="qa_user_console">
+            </div>
+            <div>
+              <label for="registerPassword">Пароль</label>
+              <input id="registerPassword" value="StrongPass123" type="password" autocomplete="off" placeholder="StrongPass123">
+              <div class="hint">Минимум 8 символов. Можно оставить тестовый пароль по умолчанию.</div>
+            </div>
+            <div>
+              <label for="registerFullName">Полное имя</label>
+              <input id="registerFullName" value="QA Console User" autocomplete="off" placeholder="QA Console User">
+            </div>
+          </div>
+          <div class="button-row" style="margin-top: 16px;">
+            <button data-action="register" data-loading="Регистрируем...">Register</button>
+            <button class="secondary" data-action="login" data-loading="Входим...">Login</button>
+            <button class="secondary" data-action="sessions" data-loading="Загружаем сессии...">Список сессий</button>
+            <button class="danger" data-action="logout" data-loading="Выходим...">Logout</button>
+          </div>
+        </section>
+
+        <div class="split-2">
+          <section class="panel" id="profile">
+            <div class="panel-head">
+              <div class="copy">
+                <p class="panel-label">Профиль</p>
+                <h2>Личный кабинет и данные пользователя</h2>
+                <p>Используй этот блок, чтобы проверить `GET/PATCH /profile/me` и кабинет с агрегированной статистикой.</p>
+              </div>
+            </div>
+            <div class="field-grid single">
+              <div>
+                <label for="profileFullName">Имя в профиле</label>
+                <input id="profileFullName" value="QA Console User Updated" autocomplete="off">
+              </div>
+              <div>
+                <label for="profileBio">О себе</label>
+                <textarea id="profileBio">Тестовый пользователь для проверки кабинета и прогресса.</textarea>
+              </div>
+              <div>
+                <label for="profileAvatar">Ссылка на аватар</label>
+                <input id="profileAvatar" value="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80" autocomplete="off">
+              </div>
+            </div>
+            <div class="button-row" style="margin-top: 16px;">
+              <button data-action="profileMe" data-loading="Загружаем профиль...">Получить профиль</button>
+              <button class="secondary" data-action="profileUpdate" data-loading="Сохраняем профиль...">Обновить профиль</button>
+              <button class="secondary" data-action="cabinet" data-loading="Загружаем кабинет...">Загрузить кабинет</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div class="copy">
+                <p class="panel-label">Рейтинг</p>
+                <h2>Лига, репутация и лидерборд</h2>
+                <p>Личный рейтинг требует access token, лидерборд можно смотреть и без авторизации.</p>
+              </div>
+            </div>
+            <div class="field-grid">
+              <div>
+                <label for="leaderboardLimit">Сколько строк в лидерборде</label>
+                <input id="leaderboardLimit" value="10" type="number" min="1" max="100">
+              </div>
+              <div>
+                <label for="leaderboardOffset">Смещение</label>
+                <input id="leaderboardOffset" value="0" type="number" min="0">
+              </div>
+            </div>
+            <div class="button-row" style="margin-top: 16px;">
+              <button data-action="ratingMe" data-loading="Загружаем рейтинг...">Мой рейтинг</button>
+              <button class="secondary" data-action="leaderboard" data-loading="Загружаем лидерборд...">Leaderboard</button>
+              <button class="secondary" data-action="health" data-loading="Проверяем backend...">Проверить backend</button>
+            </div>
+            <div class="helper" style="margin-top: 16px;">
+              <p>
+                После отправки сценария блок рейтинга становится особенно полезным:
+                здесь видно, как изменения прогресса влияют на репутацию, ранг и лигу.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel" id="progress">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Прогресс</p>
+              <h2>Сценарии, ошибки и процент успешности</h2>
+              <p>
+                В этом блоке можно отправить одну попытку сценария, а затем получить summary, список
+                сценариев и детализацию по конкретному `scenario_key`.
+              </p>
+            </div>
+            <div class="helper" style="max-width: 360px;">
+              <p>
+                Если хочешь быстро увидеть начисление и списание репутации, оставь одну ошибку с `penalty_points`,
+                а `score_percentage` поставь выше 70. Тогда будут видны и успех, и штраф.
+              </p>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label for="scenarioKey">Ключ сценария</label>
+              <input id="scenarioKey" value="phishing-inbox-01" autocomplete="off">
+            </div>
+            <div>
+              <label for="scenarioTitle">Название сценария</label>
+              <input id="scenarioTitle" value="Подозрительное письмо от банка" autocomplete="off">
+            </div>
+            <div>
+              <label for="scenarioScore">Процент успеха</label>
+              <input id="scenarioScore" value="87" type="number" min="0" max="100">
+            </div>
+            <div>
+              <label for="scenarioSuccess">Итог сценария</label>
+              <select id="scenarioSuccess">
+                <option value="true">Успешно</option>
+                <option value="false">Неуспешно</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-grid single" style="margin-top: 12px;">
+            <div>
+              <label for="scenarioPayload">Что отправляется как payload</label>
+              <textarea id="scenarioPayload">{
+  "selectedAction": "report_phishing",
+  "notes": "Письмо отправлено в security desk"
+}</textarea>
+            </div>
+            <div>
+              <label for="scenarioErrors">Ошибки сценария</label>
+              <textarea id="scenarioErrors">[
+  {
+    "error_code": "late_response",
+    "message": "Пользователь ответил спустя 15 минут",
+    "severity": "low",
+    "penalty_points": 2,
+    "context": {
+      "delay_minutes": 15
+    }
+  }
+]</textarea>
+            </div>
+          </div>
+          <div class="button-row" style="margin-top: 16px;">
+            <button data-action="progressSubmit" data-loading="Отправляем попытку...">Отправить попытку</button>
+            <button class="secondary" data-action="progressSummary" data-loading="Загружаем summary...">Summary</button>
+            <button class="secondary" data-action="progressList" data-loading="Загружаем сценарии...">Список сценариев</button>
+            <button class="secondary" data-action="progressDetail" data-loading="Загружаем детали...">Детали сценария</button>
+          </div>
+        </section>
+
+        <section class="panel" id="realtime">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Realtime</p>
+              <h2>Проверка WebSocket</h2>
+              <p>
+                Подключай realtime уже после логина. После соединения можно отправить `ping`
+                и посмотреть сообщения о состоянии прогресса в правом журнале.
+              </p>
+            </div>
+            <div class="helper" style="max-width: 320px;">
+              <p>
+                Если сокет не подключается, чаще всего проблема в access token. Нажми Login или Refresh,
+                потом повтори попытку.
+              </p>
+            </div>
+          </div>
+          <div class="pill-row" style="margin-bottom: 14px;">
+            <span class="pill neutral" id="wsConnectionPill"><span class="indicator" id="wsConnectionIndicator"></span><span id="wsConnectionText">disconnected</span></span>
+          </div>
+          <div class="button-row">
+            <button data-action="wsConnect" data-loading="Подключаем WebSocket...">Подключить WebSocket</button>
+            <button class="secondary" data-action="wsPing">Отправить ping</button>
+            <button class="danger" data-action="wsDisconnect">Отключить</button>
+          </div>
+        </section>
+
+        <section class="panel" id="logs">
+          <div class="panel-head">
+            <div class="copy">
+              <p class="panel-label">Журналы</p>
+              <h2>Подробные ответы API и WebSocket</h2>
+              <p>Если нужно дебажить глубже, вся сырая информация остаётся здесь. Для обычной проверки достаточно карточек выше.</p>
+            </div>
+            <div class="button-row">
+              <button class="secondary" data-action="clearConsole">Очистить журналы</button>
+            </div>
+          </div>
+          <div class="console-grid">
+            <div>
+              <div class="console-title">
+                <h3>API Console</h3>
+                <span class="mini">Все HTTP-ответы и ошибки</span>
+              </div>
+              <div class="console" id="console">Console initialized.</div>
+            </div>
+            <div>
+              <div class="console-title">
+                <h3>WebSocket Console</h3>
+                <span class="mini">События соединения и сообщения</span>
+              </div>
+              <div class="console" id="wsConsole">WebSocket log will appear here.</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script>
+    const state = {
+      accessToken: localStorage.getItem("ci_access_token") || "",
+      refreshToken: localStorage.getItem("ci_refresh_token") || "",
+      latestSessionId: localStorage.getItem("ci_session_id") || "",
+      websocket: null,
+      user: null,
+      cabinet: null,
+      rating: null,
+      progressSummary: null,
+    };
+
+    const consoleBox = document.getElementById("console");
+    const wsConsole = document.getElementById("wsConsole");
+    const accessTokenBox = document.getElementById("accessTokenBox");
+    const refreshTokenBox = document.getElementById("refreshTokenBox");
+    const accessTokenPreview = document.getElementById("accessTokenPreview");
+    const refreshTokenPreview = document.getElementById("refreshTokenPreview");
+    const sessionPreview = document.getElementById("sessionPreview");
+    const authStatus = document.getElementById("authStatus");
+    const backendStatus = document.getElementById("backendStatus");
+    const backendIndicator = document.getElementById("backendIndicator");
+    const backendStatusText = document.getElementById("backendStatusText");
+    const wsStatus = document.getElementById("wsStatus");
+    const wsIndicator = document.getElementById("wsIndicator");
+    const wsStatusText = document.getElementById("wsStatusText");
+    const wsConnectionPill = document.getElementById("wsConnectionPill");
+    const wsConnectionIndicator = document.getElementById("wsConnectionIndicator");
+    const wsConnectionText = document.getElementById("wsConnectionText");
+    const lastActionTitle = document.getElementById("lastActionTitle");
+    const lastActionMeta = document.getElementById("lastActionMeta");
+    const lastActionStatus = document.getElementById("lastActionStatus");
+    const lastActionRoute = document.getElementById("lastActionRoute");
+    const lastActionPreview = document.getElementById("lastActionPreview");
+    const toastStack = document.getElementById("toastStack");
+
+    document.getElementById("hostLabel").textContent = window.location.host;
+
+    function formatNow() {
+      return new Date().toLocaleTimeString();
+    }
+
+    function safeSerialize(payload) {
+      if (typeof payload === "string") {
+        return payload;
+      }
+      return JSON.stringify(payload, null, 2);
+    }
+
+    function shortToken(token) {
+      if (!token) {
+        return "Пока не выдан";
+      }
+      if (token.length <= 24) {
+        return token;
+      }
+      return `${token.slice(0, 14)}...${token.slice(-10)}`;
+    }
+
+    function formatNumber(value, digits = 0) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) {
+        return "-";
+      }
+      return Number(value).toFixed(digits);
+    }
+
+    function formatPercent(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) {
+        return "-";
+      }
+      return `${Number(value).toFixed(1)}%`;
+    }
+
+    function logConsole(title, payload) {
+      const serialized = safeSerialize(payload);
+      consoleBox.textContent = `[${formatNow()}] ${title}\n${serialized}\n\n${consoleBox.textContent}`;
+    }
+
+    function logWs(title, payload) {
+      const serialized = safeSerialize(payload);
+      wsConsole.textContent = `[${formatNow()}] ${title}\n${serialized}\n\n${wsConsole.textContent}`;
+    }
+
+    function showToast(title, message, tone = "ok") {
+      const toast = document.createElement("div");
+      toast.className = `toast ${tone}`;
+      const strong = document.createElement("strong");
+      strong.textContent = title;
+      const span = document.createElement("span");
+      span.textContent = message;
+      toast.append(strong, span);
+      toastStack.prepend(toast);
+      window.setTimeout(() => toast.remove(), 4200);
+    }
+
+    function renderLastAction(title, route, payload, ok, statusCode = null) {
+      lastActionTitle.textContent = title;
+      lastActionRoute.textContent = route || "Пока нет";
+      lastActionMeta.textContent = statusCode ? `Статус: ${statusCode} • ${formatNow()}` : `Время: ${formatNow()}`;
+      lastActionStatus.textContent = ok ? "успешно" : "ошибка";
+      lastActionStatus.className = `pill ${ok ? "ok" : "bad"}`;
+
+      if (typeof payload === "string") {
+        lastActionPreview.textContent = payload.slice(0, 240) || "Пустой ответ";
+        return;
+      }
+
+      if (payload?.detail) {
+        lastActionPreview.textContent = typeof payload.detail === "string" ? payload.detail : safeSerialize(payload.detail).slice(0, 240);
+        return;
+      }
+
+      if (payload?.summary) {
+        lastActionPreview.textContent = `Сценарии: ${payload.summary.total_scenarios}, попытки: ${payload.summary.total_attempts}, репутация: ${payload.summary.reputation_score}`;
+        return;
+      }
+
+      if (payload?.stats) {
+        lastActionPreview.textContent = `Сценарии: ${payload.stats.total_scenarios}, завершено: ${payload.stats.completed_scenarios}, ошибок: ${payload.stats.total_errors}`;
+        return;
+      }
+
+      if (payload?.league || payload?.reputation_score !== undefined) {
+        const rankText = payload.rank !== undefined ? `, ранг: ${payload.rank}` : "";
+        lastActionPreview.textContent = `Лига: ${payload.league || "-"}, репутация: ${payload.reputation_score ?? "-"}${rankText}`;
+        return;
+      }
+
+      if (payload?.profile) {
+        lastActionPreview.textContent = `Профиль: ${payload.profile.full_name || payload.profile.username} • ${payload.profile.email}`;
+        return;
+      }
+
+      if (payload?.user) {
+        lastActionPreview.textContent = `Пользователь: ${payload.user.full_name || payload.user.username} • ${payload.user.email}`;
+        return;
+      }
+
+      if (Array.isArray(payload?.items)) {
+        lastActionPreview.textContent = `Получено элементов: ${payload.items.length}`;
+        return;
+      }
+
+      lastActionPreview.textContent = safeSerialize(payload).slice(0, 240) || "Пустой ответ";
+    }
+
+    function syncTokenViews() {
+      accessTokenPreview.textContent = shortToken(state.accessToken);
+      refreshTokenPreview.textContent = shortToken(state.refreshToken);
+      sessionPreview.textContent = state.latestSessionId ? shortToken(state.latestSessionId) : "Не выбрана";
+      accessTokenBox.textContent = state.accessToken || "No access token yet.";
+      refreshTokenBox.textContent = state.refreshToken || "No refresh token yet.";
+      authStatus.textContent = state.accessToken ? "вход выполнен" : "не авторизован";
+      authStatus.className = `pill ${state.accessToken ? "ok" : "bad"}`;
+    }
+
+    function renderUserSummary() {
+      const user = state.user;
+      const cabinet = state.cabinet;
+      const rating = state.rating;
+      const progressSummary = state.progressSummary;
+
+      document.getElementById("summaryName").textContent =
+        user?.full_name || user?.username || "Пока нет";
+      document.getElementById("summaryEmail").textContent =
+        user?.email || "Авторизуйся или зарегистрируйся";
+      document.getElementById("summaryLeague").textContent =
+        rating?.league || user?.league || progressSummary?.league || "—";
+      document.getElementById("summaryReputation").textContent =
+        `Репутация: ${rating?.reputation_score ?? user?.reputation_score ?? progressSummary?.reputation_score ?? "-"}`;
+      document.getElementById("summaryRank").textContent =
+        rating?.rank !== undefined && rating?.rank !== null ? `#${rating.rank}` : "—";
+      document.getElementById("summaryActiveSessions").textContent =
+        `Активные сессии: ${cabinet?.active_sessions ?? "-"}`;
+      document.getElementById("summarySuccessRate").textContent =
+        formatPercent(progressSummary?.average_success_rate ?? cabinet?.stats?.average_success_rate);
+      document.getElementById("summaryScenarios").textContent =
+        `Сценарии: ${progressSummary?.total_scenarios ?? cabinet?.stats?.total_scenarios ?? "-"}`;
+    }
+
+    function setTokensFromResult(data) {
+      state.accessToken = data.access_token || "";
+      state.refreshToken = data.refresh_token || "";
+      state.latestSessionId = data.session?.id || "";
+      localStorage.setItem("ci_access_token", state.accessToken);
+      localStorage.setItem("ci_refresh_token", state.refreshToken);
+      localStorage.setItem("ci_session_id", state.latestSessionId);
+      if (data.user) {
+        state.user = { ...(state.user || {}), ...data.user };
+      }
+      syncTokenViews();
+      renderUserSummary();
+    }
+
+    function clearTokens() {
+      state.accessToken = "";
+      state.refreshToken = "";
+      state.latestSessionId = "";
+      localStorage.removeItem("ci_access_token");
+      localStorage.removeItem("ci_refresh_token");
+      localStorage.removeItem("ci_session_id");
+      syncTokenViews();
+    }
+
+    function absorbResponseData(data) {
+      if (!data || typeof data !== "object") {
+        return;
+      }
+
+      if (data.user) {
+        state.user = { ...(state.user || {}), ...data.user };
+      }
+
+      if (data.profile) {
+        state.user = { ...(state.user || {}), ...data.profile };
+      }
+
+      if (data.stats || data.active_sessions !== undefined) {
+        state.cabinet = data;
+      }
+
+      if (data.summary) {
+        state.progressSummary = data.summary;
+      }
+
+      if (data.total_scenarios !== undefined && data.average_success_rate !== undefined) {
+        state.progressSummary = data;
+      }
+
+      if (data.reputation_score !== undefined && data.league) {
+        state.rating = {
+          ...(state.rating || {}),
+          reputation_score: data.reputation_score,
+          league: data.league,
+          rank: data.rank ?? state.rating?.rank ?? null,
+        };
+      }
+
+      renderUserSummary();
+    }
+
+    async function apiRequest(path, { method = "GET", body = null, auth = false } = {}) {
+      const headers = {};
+      if (body !== null) {
+        headers["Content-Type"] = "application/json";
+      }
+      if (auth) {
+        if (!state.accessToken) {
+          throw new Error("Access token is missing. Login or register first.");
+        }
+        headers["Authorization"] = `Bearer ${state.accessToken}`;
+      }
+
+      const response = await fetch(path, {
+        method,
+        headers,
+        body: body !== null ? JSON.stringify(body) : undefined,
+      });
+
+      const rawText = await response.text();
+      let data = rawText;
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch (_) {
+        data = rawText;
+      }
+
+      if (!response.ok) {
+        logConsole(`${method} ${path} FAILED`, { status: response.status, data });
+        renderLastAction(`${method} ${path}`, path, data, false, response.status);
+        showToast("Ошибка запроса", `${method} ${path} вернул ${response.status}`, "bad");
+        throw new Error(typeof data === "string" ? data : JSON.stringify(data, null, 2));
+      }
+
+      logConsole(`${method} ${path}`, data);
+      absorbResponseData(data);
+      renderLastAction(`${method} ${path}`, path, data, true, response.status);
+      return data;
+    }
+
+    function parseJsonField(id, fallback) {
+      const raw = document.getElementById(id).value.trim();
+      if (!raw) {
+        return fallback;
+      }
+      try {
+        return JSON.parse(raw);
+      } catch (error) {
+        throw new Error(`Поле ${id} содержит невалидный JSON.`);
+      }
+    }
+
+    function generateIdentity() {
+      const stamp = Date.now().toString(36).slice(-6);
+      document.getElementById("registerEmail").value = `qa.user+${stamp}@example.com`;
+      document.getElementById("registerUsername").value = `qa_user_${stamp}`;
+    }
+
+    async function checkBackend() {
+      try {
+        const ready = await apiRequest("/api/v1/health/ready");
+        backendStatus.className = "pill ok";
+        backendIndicator.classList.add("live");
+        backendIndicator.classList.remove("bad");
+        backendStatusText.textContent = `backend ready: db=${ready.services.database}, redis=${ready.services.redis}`;
+        showToast("Backend доступен", `DB: ${ready.services.database}, Redis: ${ready.services.redis}`);
+      } catch (error) {
+        backendStatus.className = "pill bad";
+        backendIndicator.classList.remove("live");
+        backendIndicator.classList.add("bad");
+        backendStatusText.textContent = "backend unavailable";
+        logConsole("health check error", String(error));
+      }
+    }
+
+    async function register() {
+      const payload = {
+        email: document.getElementById("registerEmail").value.trim(),
+        username: document.getElementById("registerUsername").value.trim(),
+        password: document.getElementById("registerPassword").value,
+        full_name: document.getElementById("registerFullName").value.trim() || null,
+      };
+      const data = await apiRequest("/api/v1/auth/register", { method: "POST", body: payload });
+      setTokensFromResult(data);
+      showToast("Регистрация успешна", "Пользователь создан и токены сохранены.");
+    }
+
+    async function login() {
+      const payload = {
+        login: document.getElementById("registerEmail").value.trim(),
+        password: document.getElementById("registerPassword").value,
+      };
+      const data = await apiRequest("/api/v1/auth/login", { method: "POST", body: payload });
+      setTokensFromResult(data);
+      showToast("Вход выполнен", "Access и refresh token обновлены.");
+    }
+
+    async function refresh() {
+      if (!state.refreshToken) {
+        throw new Error("Refresh token is missing.");
+      }
+      const data = await apiRequest("/api/v1/auth/refresh", {
+        method: "POST",
+        body: { refresh_token: state.refreshToken },
+      });
+      setTokensFromResult(data);
+      showToast("Токен обновлён", "Получена новая access/refresh пара.");
+    }
+
+    async function logout() {
+      await apiRequest("/api/v1/auth/logout", { method: "POST", auth: true });
+      clearTokens();
+      showToast("Сессия завершена", "Локальные токены очищены.");
+    }
+
+    async function profileMe() {
+      await apiRequest("/api/v1/profile/me", { auth: true });
+      showToast("Профиль загружен", "Данные пользователя обновлены в сводке.");
+    }
+
+    async function profileUpdate() {
+      await apiRequest("/api/v1/profile/me", {
+        method: "PATCH",
+        auth: true,
+        body: {
+          full_name: document.getElementById("profileFullName").value.trim() || null,
+          bio: document.getElementById("profileBio").value.trim() || null,
+          avatar_url: document.getElementById("profileAvatar").value.trim() || null,
+        },
+      });
+      showToast("Профиль обновлён", "Новые данные сохранены.");
+    }
+
+    async function cabinet() {
+      await apiRequest("/api/v1/profile/me/cabinet", { auth: true });
+      showToast("Кабинет загружен", "Статистика и активные сессии обновлены.");
+    }
+
+    async function sessions() {
+      await apiRequest("/api/v1/auth/sessions", { auth: true });
+      showToast("Сессии загружены", "Список активных сессий пришёл в API Console.");
+    }
+
+    async function ratingMe() {
+      await apiRequest("/api/v1/rating/me", { auth: true });
+      showToast("Рейтинг обновлён", "Репутация и лига загружены.");
+    }
+
+    async function leaderboard() {
+      const limit = Number(document.getElementById("leaderboardLimit").value || 10);
+      const offset = Number(document.getElementById("leaderboardOffset").value || 0);
+      await apiRequest(`/api/v1/rating/leaderboard?limit=${limit}&offset=${offset}`);
+      showToast("Лидерборд загружен", `Получены записи: limit=${limit}, offset=${offset}.`);
+    }
+
+    async function progressSubmit() {
+      const success = document.getElementById("scenarioSuccess").value === "true";
+      const payload = {
+        scenario_key: document.getElementById("scenarioKey").value.trim(),
+        scenario_title: document.getElementById("scenarioTitle").value.trim(),
+        success,
+        completed: success,
+        score_percentage: Number(document.getElementById("scenarioScore").value || 0),
+        submission_payload: parseJsonField("scenarioPayload", {}),
+        errors: parseJsonField("scenarioErrors", []),
+      };
+      await apiRequest("/api/v1/progress/attempts", {
+        method: "POST",
+        auth: true,
+        body: payload,
+      });
+      showToast("Попытка отправлена", "Прогресс и репутация пересчитаны.");
+    }
+
+    async function progressSummary() {
+      await apiRequest("/api/v1/progress/summary", { auth: true });
+      showToast("Summary загружен", "Обновлена общая статистика прогресса.");
+    }
+
+    async function progressList() {
+      await apiRequest("/api/v1/progress/scenarios", { auth: true });
+      showToast("Сценарии загружены", "Список доступен в журнале API.");
+    }
+
+    async function progressDetail() {
+      const scenarioKey = document.getElementById("scenarioKey").value.trim();
+      await apiRequest(`/api/v1/progress/scenarios/${encodeURIComponent(scenarioKey)}`, { auth: true });
+      showToast("Детали загружены", `Показаны данные по сценарию ${scenarioKey}.`);
+    }
+
+    function connectWebSocket() {
+      if (!state.accessToken) {
+        throw new Error("Access token is missing.");
+      }
+      if (state.websocket && state.websocket.readyState < 2) {
+        logWs("ws", "Already connected.");
+        return;
+      }
+
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const url = `${protocol}//${window.location.host}/api/v1/ws/progress?token=${encodeURIComponent(state.accessToken)}`;
+      const socket = new WebSocket(url);
+      state.websocket = socket;
+
+      socket.onopen = () => {
+        wsIndicator.classList.add("live");
+        wsIndicator.classList.remove("bad");
+        wsConnectionIndicator.classList.add("live");
+        wsConnectionIndicator.classList.remove("bad");
+        wsStatus.className = "pill ok";
+        wsStatusText.textContent = "websocket online";
+        wsConnectionPill.className = "pill ok";
+        wsConnectionText.textContent = "connected";
+        logWs("open", url);
+        showToast("WebSocket подключён", "Realtime-соединение активно.");
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          logWs("message", JSON.parse(event.data));
+        } catch (_) {
+          logWs("message", event.data);
+        }
+      };
+
+      socket.onerror = () => {
+        logWs("error", "WebSocket error");
+        showToast("WebSocket ошибка", "Проверь access token и попробуй снова.", "bad");
+      };
+
+      socket.onclose = (event) => {
+        wsIndicator.classList.remove("live");
+        wsIndicator.classList.add("bad");
+        wsConnectionIndicator.classList.remove("live");
+        wsConnectionIndicator.classList.add("bad");
+        wsStatus.className = "pill bad";
+        wsStatusText.textContent = "websocket offline";
+        wsConnectionPill.className = "pill bad";
+        wsConnectionText.textContent = `disconnected (${event.code})`;
+        logWs("close", { code: event.code, reason: event.reason });
+      };
+    }
+
+    function wsPing() {
+      if (!state.websocket || state.websocket.readyState !== WebSocket.OPEN) {
+        throw new Error("WebSocket is not connected.");
+      }
+      state.websocket.send("ping");
+      logWs("sent", "ping");
+      showToast("Ping отправлен", "Смотри ответ в WebSocket Console.");
+    }
+
+    function wsDisconnect() {
+      if (state.websocket) {
+        state.websocket.close();
+        state.websocket = null;
+        showToast("WebSocket закрыт", "Соединение завершено.");
+      }
+    }
+
+    function resetDemoData() {
+      generateIdentity();
+      document.getElementById("registerPassword").value = "StrongPass123";
+      document.getElementById("registerFullName").value = "QA Console User";
+      document.getElementById("profileFullName").value = "QA Console User Updated";
+      document.getElementById("profileBio").value = "Тестовый пользователь для проверки кабинета и прогресса.";
+      document.getElementById("profileAvatar").value = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80";
+      document.getElementById("scenarioKey").value = "phishing-inbox-01";
+      document.getElementById("scenarioTitle").value = "Подозрительное письмо от банка";
+      document.getElementById("scenarioScore").value = "87";
+      document.getElementById("scenarioSuccess").value = "true";
+      document.getElementById("scenarioPayload").value = `{
+  "selectedAction": "report_phishing",
+  "notes": "Письмо отправлено в security desk"
+}`;
+      document.getElementById("scenarioErrors").value = `[
+  {
+    "error_code": "late_response",
+    "message": "Пользователь ответил спустя 15 минут",
+    "severity": "low",
+    "penalty_points": 2,
+    "context": {
+      "delay_minutes": 15
+    }
+  }
+]`;
+      logConsole("forms", "Demo values reset.");
+      showToast("Данные обновлены", "Подготовлен новый тестовый пользователь и сценарий.");
+    }
+
+    async function copyText(text, label) {
+      if (!text) {
+        throw new Error(`${label} is empty.`);
+      }
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const fallback = document.createElement("textarea");
+        fallback.value = text;
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.appendChild(fallback);
+        fallback.focus();
+        fallback.select();
+        document.execCommand("copy");
+        fallback.remove();
+      }
+      showToast("Скопировано", `${label} помещён в буфер обмена.`);
+    }
+
+    async function runDemoFlow() {
+      resetDemoData();
+      await checkBackend();
+      await register();
+      await profileUpdate();
+      await cabinet();
+      await progressSubmit();
+      await progressSummary();
+      await ratingMe();
+      showToast("Демо-прогон завершён", "Проверь сводку слева и журналы ниже.");
+    }
+
+    const actions = {
+      register,
+      login,
+      refresh,
+      logout,
+      profileMe,
+      profileUpdate,
+      cabinet,
+      sessions,
+      ratingMe,
+      leaderboard,
+      progressSubmit,
+      progressSummary,
+      progressList,
+      progressDetail,
+      wsConnect: connectWebSocket,
+      wsPing,
+      wsDisconnect,
+      health: checkBackend,
+      copyAccess: () => copyText(state.accessToken, "Access token"),
+      copyRefresh: () => copyText(state.refreshToken, "Refresh token"),
+      clearTokens: () => {
+        clearTokens();
+        showToast("Токены очищены", "Локальное состояние доступа сброшено.");
+      },
+      clearConsole: () => {
+        consoleBox.textContent = "Console cleared.";
+        wsConsole.textContent = "WebSocket log will appear here.";
+        showToast("Журналы очищены", "Можно запускать следующий сценарий.");
+      },
+      seedForms: resetDemoData,
+      runDemoFlow,
+    };
+
+    for (const button of document.querySelectorAll("[data-action]")) {
+      button.addEventListener("click", async () => {
+        const action = actions[button.dataset.action];
+        if (!action) {
+          return;
+        }
+        const original = button.textContent;
+        button.disabled = true;
+        button.textContent = button.dataset.loading || "Подождите...";
+        try {
+          await action();
+        } catch (error) {
+          const message = String(error);
+          logConsole(`action ${button.dataset.action} error`, message);
+          renderLastAction(`Action ${button.dataset.action}`, button.dataset.action, message, false);
+          showToast("Не удалось выполнить действие", message, "bad");
+        } finally {
+          button.disabled = false;
+          button.textContent = original;
+        }
+      });
+    }
+
+    syncTokenViews();
+    renderUserSummary();
+    resetDemoData();
+    checkBackend();
+  </script>
+</body>
+</html>
